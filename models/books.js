@@ -4,7 +4,7 @@ import { join, dirname } from "path";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
-const filepath = join(__dirname, "storage.json");
+const filepath = join(__dirname, "storages.json");
 
 async function getAllBooks() {
   try {

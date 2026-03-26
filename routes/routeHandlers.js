@@ -7,26 +7,17 @@ import express from "express";
 const router = express.Router();
 
 router.get("/books", async (req, res) => {
-  const result = await controllerGetAllBooks();
-
-  if (result.status !== "success") res.status(404);
-
+  const result = await controllerGetAllBooks(res);
   return res.send(result);
 });
 
 router.get("/books/:id", async (req, res) => {
-  const result = await controllerGetBookById(req.params.id);
-
-  if (result.status !== "success") res.status(404);
-
+  const result = await controllerGetBookById(res, req.params.id);
   return res.send(result);
 });
 
 router.post("/books", async (req, res) => {
-  const result = await controllerPostBook(req.body);
-
-  if (result.status !== "success") res.status(404);
-
+  const result = await controllerPostBook(res, req.body);
   return res.send(result);
 });
 
