@@ -24,4 +24,21 @@ async function getAllBooks() {
   }
 }
 
-export { getAllBooks };
+async function insertBook(data) {
+  try {
+    // Check if file json storage exist, return error of didnt exist
+    await fs.promises.access(filepath);
+
+    await fs.promises.writeFile(filepath, JSON.stringify(data));
+
+    return { status: "success", data: data };
+  } catch (e) {
+    return {
+      status: "error",
+      code: e.code,
+      message: "Invalid, file doesn't exist",
+    };
+  }
+}
+
+export { getAllBooks, insertBook };
