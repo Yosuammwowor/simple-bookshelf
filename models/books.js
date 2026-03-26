@@ -6,7 +6,7 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 const filepath = join(__dirname, "storage.json");
 
-async function getAllUsers() {
+async function getAllBooks() {
   try {
     // Check if file json storage exist, return error of didnt exist
     await fs.promises.access(filepath);
@@ -24,4 +24,4 @@ async function getAllUsers() {
   }
 }
 
-export { getAllUsers };
+export { getAllBooks };

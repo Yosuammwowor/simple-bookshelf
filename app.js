@@ -1,3 +1,11 @@
-import { getAllUsers } from "./models/books.js";
+import express from "express";
+import { router } from "./routes/routeHandlers.js";
 
-getAllUsers().then((e) => console.log(e));
+const app = express();
+
+app.use(express.json());
+app.use(router);
+
+app.listen(8000, () => {
+  console.log("Server running at http://localhost:8000");
+});
