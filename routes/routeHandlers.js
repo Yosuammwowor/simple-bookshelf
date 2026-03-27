@@ -2,6 +2,7 @@ import {
   controllerGetAllBooks,
   controllerGetBookById,
   controllerPostBook,
+  controllerPutBook,
 } from "../controllers/bookController.js";
 import express from "express";
 const router = express.Router();
@@ -18,6 +19,11 @@ router.get("/books/:id", async (req, res) => {
 
 router.post("/books", async (req, res) => {
   const result = await controllerPostBook(res, req.body);
+  return res.send(result);
+});
+
+router.put("/books/:id", async (req, res) => {
+  const result = await controllerPutBook(res, req.params.id, req.body);
   return res.send(result);
 });
 

@@ -58,4 +58,58 @@ async function controllerPostBook(res, data) {
   return await insertBook(database);
 }
 
-export { controllerGetAllBooks, controllerGetBookById, controllerPostBook };
+async function controllerPutBook(res, idTarget, data) {
+  const result = await controllerGetAllBooks(res);
+
+  // Check if file exist
+  if (result.status === "error") {
+    res.status(500);
+    return result;
+  }
+
+  const isBookIndex = result.data.findIndex((book) => book.id === idTarget);
+
+  // Check if there's a book by id
+  if (isBookIndex == -1) {
+    res.status(404);
+    return { status: "fail", message: "Invalid, no book id match" };
+  }
+
+  const { title, author, year } = data;
+
+  // Check property amount
+  if (!title || !author || !year) {
+    res.status(400);
+    return {
+      status: "fail",
+      message: "Invalid, missing value 'title', 'author', or 'year'",
+    };
+  }
+
+  // Check data type value
+  if (
+    typeof title !== "string" ||
+    typeof author !== "string" ||
+    typeof year !== "number"
+  ) {
+    res.status(400);
+    return { status: "fail", message: "Invalid, data type value" };
+  }
+
+  // Modify data
+  result.data[isBookIndex].title = title;
+  result.data[isBookIndex].author = author;
+  result.data[isBookIndex].year = year;
+
+  // Overwrite json storage
+  insertBook(result.data);
+
+  return { status: "success", data: result.data };
+}
+
+export {
+  controllerGetAllBooks,
+  controllerGetBookById,
+  controllerPostBook,
+  controllerPutBook,
+};
