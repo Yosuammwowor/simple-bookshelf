@@ -107,9 +107,36 @@ async function controllerPutBook(res, idTarget, data) {
   return { status: "success", data: result.data };
 }
 
+async function controllerDeleteBook(res, id) {
+  let result = await controllerGetAllBooks(res);
+
+  // Check if file exist
+  if (result.status === "error") {
+    res.status(500);
+    return result;
+  }
+
+  const isBookValid = result.data.find((book) => book.id === id);
+
+  // Check if there's a book by id
+  if (!isBookValid) {
+    res.status(404);
+    return { status: "fail", message: "Invalid, no book id match" };
+  }
+
+  // Remove book by id
+  result = result.data.filter((book) => book.id !== id);
+
+  // Overwrite json storage
+  insertBook(result);
+
+  return { status: "success", data: result };
+}
+
 export {
   controllerGetAllBooks,
   controllerGetBookById,
   controllerPostBook,
   controllerPutBook,
+  controllerDeleteBook,
 };

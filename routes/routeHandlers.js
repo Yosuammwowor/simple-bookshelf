@@ -3,6 +3,7 @@ import {
   controllerGetBookById,
   controllerPostBook,
   controllerPutBook,
+  controllerDeleteBook,
 } from "../controllers/bookController.js";
 import express from "express";
 const router = express.Router();
@@ -24,6 +25,11 @@ router.post("/books", async (req, res) => {
 
 router.put("/books/:id", async (req, res) => {
   const result = await controllerPutBook(res, req.params.id, req.body);
+  return res.send(result);
+});
+
+router.delete("/books/:id", async (req, res) => {
+  const result = await controllerDeleteBook(res, req.params.id);
   return res.send(result);
 });
 
