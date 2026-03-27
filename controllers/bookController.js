@@ -14,11 +14,15 @@ async function controllerGetAllBooks(res) {
 async function controllerGetBookById(res, id) {
   const result = await controllerGetAllBooks(res);
 
-  if (result.status === "error") return result;
+  if (result.status === "error") {
+    res.status(500);
+    return result;
+  }
 
   const bookIsValid = result.data.find((book) => book.id === id);
 
   if (!bookIsValid) {
+    res.status(404);
     return { status: "fail", message: "Invalid, no book id match" };
   }
 
@@ -26,6 +30,13 @@ async function controllerGetBookById(res, id) {
 }
 
 async function controllerPostBook(res, data) {
+  let result = await controllerGetAllBooks(res);
+
+  if (result.status === "error") {
+    res.status(500);
+    return result;
+  }
+
   const { id, title, author, year, status } = data;
   res.status(400);
 
@@ -46,16 +57,12 @@ async function controllerPostBook(res, data) {
   )
     return { status: "fail", message: "Invalid, data type value" };
 
-  let database = await controllerGetAllBooks(res);
+  result = result.data;
 
-  if (database.status === "error") return database;
-
-  database = database.data;
-
-  database.push({ id, title, author, year, status });
+  result.push({ id, title, author, year, status });
 
   res.status(200);
-  return await insertBook(database);
+  return await insertBook(result);
 }
 
 async function controllerPutBook(res, idTarget, data) {

@@ -8,6 +8,16 @@ import {
 import express from "express";
 const router = express.Router();
 
+router.all("/{*splat}", (req, res, next) => {
+  // Logging & Monitoring
+  const timezone = new Date().toLocaleString("en-US", {
+    timeZone: "Asia/Makassar",
+  });
+  console.log(`${timezone} - ${req.method} ${req.originalUrl}`);
+
+  next();
+});
+
 router.get("/books", async (req, res) => {
   const result = await controllerGetAllBooks(res);
   return res.send(result);
@@ -31,6 +41,10 @@ router.put("/books/:id", async (req, res) => {
 router.delete("/books/:id", async (req, res) => {
   const result = await controllerDeleteBook(res, req.params.id);
   return res.send(result);
+});
+
+router.all("/{*splat}", (req, res) => {
+  return res.status(404).send({ status: "fail", message: "Not Found" });
 });
 
 export { router };
