@@ -21,31 +21,31 @@ router.all("/{*splat}", (req, res, next) => {
 // Route handle get all books
 router.get("/books", async (req, res) => {
   const result = await controllerGetAllBooks(res);
-  return res.send(result);
+  return result;
 });
 
 // Route handle get specific book by id
 router.get("/books/:id", async (req, res) => {
   const result = await controllerGetBookById(res, req.params.id);
-  return res.send(result);
+  return result;
 });
 
 // Route handle create new book
 router.post("/books", async (req, res) => {
   const result = await controllerPostBook(res, req.body);
-  return res.send(result);
+  return result;
 });
 
 // Route handle modify existing data book
 router.put("/books/:id", async (req, res) => {
   const result = await controllerPutBook(res, req.params.id, req.body);
-  return res.send(result);
+  return result;
 });
 
 // Route remove specific book by id
 router.delete("/books/:id", async (req, res) => {
   const result = await controllerDeleteBook(res, req.params.id);
-  return res.send(result);
+  return result;
 });
 
 // Route handler no endpoint available

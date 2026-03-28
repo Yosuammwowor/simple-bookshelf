@@ -4,38 +4,36 @@ async function controllerGetAllBooks(res) {
   const result = await getAllBooks();
 
   if (result.status === "error") {
-    res.status(500);
-    return result;
+    return res.status(500).json(result);
   }
 
-  return await getAllBooks();
+  return res.status(200).json(result);
 }
 
 async function controllerGetBookById(res, id) {
-  const result = await controllerGetAllBooks(res);
+  const result = await getAllBooks();
 
   if (result.status === "error") {
-    res.status(500);
-    return result;
+    return res.status(500).json(result);
   }
 
   const bookIsValid = result.data.find((book) => book.id === id);
 
   if (!bookIsValid) {
-    res.status(404);
-    return { status: "fail", message: "Invalid, no book id match" };
+    return res
+      .status(404)
+      .json({ status: "fail", message: "Invalid, no book id match" });
   }
 
-  return { status: "success", data: bookIsValid };
+  return res.status(200).json({ status: "success", data: bookIsValid });
 }
 
 async function controllerPostBook(res, data) {
-  let result = await controllerGetAllBooks(res);
+  let result = await getAllBooks();
 
   // Check storage exist
   if (result.status === "error") {
-    res.status(500);
-    return result;
+    return res.status(500).json(result);
   }
 
   const { id, title, author, year } = data;
@@ -44,20 +42,20 @@ async function controllerPostBook(res, data) {
 
   // Validation user input
   if (!id || !title || !author || !year)
-    return {
+    return res.json({
       status: "fail",
       message: "Invalid, missing value 'id', 'title', 'author', or 'year'",
-    };
+    });
 
   // Status property optional, default "available"
   if (!status) status = "available";
 
   if (status !== "available" && status !== "reading" && status !== "finished")
-    return {
+    return res.json({
       status: "fail",
       message:
         "Invalid, status value option 'available', 'reading', or 'finished'",
-    };
+    });
 
   // Check data type
   if (
@@ -66,51 +64,52 @@ async function controllerPostBook(res, data) {
     typeof author != "string" ||
     typeof year != "number"
   )
-    return { status: "fail", message: "Invalid, data type value" };
+    return res.json({ status: "fail", message: "Invalid, data type value" });
 
   result = result.data;
 
   // Check if there's duplicate book by id
   const isBookDuplicate = result.some((book) => book.id === id);
   if (isBookDuplicate) {
-    res.status(409);
-    return { status: "fail", message: "Invalid, duplicate id book" };
+    return res
+      .status(409)
+      .json({ status: "fail", message: "Invalid, duplicate id book" });
   }
 
   // Added new data to existing old data
   result.push({ id, title, author, year, status });
 
   // Overwrite json storage
-  res.status(201);
-  return await insertBook(result);
+  await insertBook(result);
+
+  return res.status(201).json({ status: "success", data: result });
 }
 
 async function controllerPutBook(res, idTarget, data) {
-  const result = await controllerGetAllBooks(res);
+  const result = await getAllBooks();
 
   // Check if file exist
   if (result.status === "error") {
-    res.status(500);
-    return result;
+    return res.status(500).json(result);
   }
 
   const isBookIndex = result.data.findIndex((book) => book.id === idTarget);
 
   // Check if there's a book by id
   if (isBookIndex == -1) {
-    res.status(404);
-    return { status: "fail", message: "Invalid, no book id match" };
+    return res
+      .status(404)
+      .json({ status: "fail", message: "Invalid, no book id match" });
   }
 
   const { title, author, year } = data;
 
   // Check property amount
   if (!title || !author || !year) {
-    res.status(400);
-    return {
+    return res.status(400).json({
       status: "fail",
       message: "Invalid, missing value 'title', 'author', or 'year'",
-    };
+    });
   }
 
   // Check data type value
@@ -119,8 +118,9 @@ async function controllerPutBook(res, idTarget, data) {
     typeof author !== "string" ||
     typeof year !== "number"
   ) {
-    res.status(400);
-    return { status: "fail", message: "Invalid, data type value" };
+    return res
+      .status(400)
+      .json({ status: "fail", message: "Invalid, data type value" });
   }
 
   // Modify data
@@ -129,35 +129,35 @@ async function controllerPutBook(res, idTarget, data) {
   result.data[isBookIndex].year = year;
 
   // Overwrite json storage
-  insertBook(result.data);
+  await insertBook(result.data);
 
-  return { status: "success", data: result.data };
+  return res.status(200).json({ status: "success", data: result.data });
 }
 
 async function controllerDeleteBook(res, id) {
-  let result = await controllerGetAllBooks(res);
+  let result = await getAllBooks();
 
-  // Check if file exist
+  // Check if storage exist
   if (result.status === "error") {
-    res.status(500);
-    return result;
+    return res.status(500).json(result);
   }
 
   const isBookValid = result.data.find((book) => book.id === id);
 
   // Check if there's a book by id
   if (!isBookValid) {
-    res.status(404);
-    return { status: "fail", message: "Invalid, no book id match" };
+    return res
+      .status(404)
+      .json({ status: "fail", message: "Invalid, no book id match" });
   }
 
   // Remove book by id
   result = result.data.filter((book) => book.id !== id);
 
   // Overwrite json storage
-  insertBook(result);
+  await insertBook(result);
 
-  return { status: "success", data: result };
+  return res.status(200).json({ status: "success", data: result });
 }
 
 export {
