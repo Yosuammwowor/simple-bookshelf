@@ -32,36 +32,56 @@ async function controllerGetBookById(res, id) {
 async function controllerPostBook(res, data) {
   let result = await controllerGetAllBooks(res);
 
+  // Check storage exist
   if (result.status === "error") {
     res.status(500);
     return result;
   }
 
-  const { id, title, author, year, status } = data;
+  const { id, title, author, year } = data;
+  let { status } = data;
   res.status(400);
 
   // Validation user input
-  if (!id || !title || !author || !year || !status)
+  if (!id || !title || !author || !year)
+    return {
+      status: "fail",
+      message: "Invalid, missing value 'id', 'title', 'author', or 'year'",
+    };
+
+  // Status property optional, default "available"
+  if (!status) status = "available";
+
+  if (status !== "available" && status !== "reading" && status !== "finished")
     return {
       status: "fail",
       message:
-        "Invalid, missing value 'id', 'title', 'author', 'year', or 'status'",
+        "Invalid, status value option 'available', 'reading', or 'finished'",
     };
 
+  // Check data type
   if (
     typeof id != "string" ||
     typeof title != "string" ||
     typeof author != "string" ||
-    typeof year != "number" ||
-    typeof status != "string"
+    typeof year != "number"
   )
     return { status: "fail", message: "Invalid, data type value" };
 
   result = result.data;
 
+  // Check if there's duplicate book by id
+  const isBookDuplicate = result.some((book) => book.id === id);
+  if (isBookDuplicate) {
+    res.status(409);
+    return { status: "fail", message: "Invalid, duplicate id book" };
+  }
+
+  // Added new data to existing old data
   result.push({ id, title, author, year, status });
 
-  res.status(200);
+  // Overwrite json storage
+  res.status(201);
   return await insertBook(result);
 }
 
