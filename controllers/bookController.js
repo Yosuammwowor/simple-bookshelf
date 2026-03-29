@@ -1,3 +1,4 @@
+import { v4 as uuidv4 } from "uuid";
 import { getAllBooks, insertBook } from "../models/books.js";
 
 async function controllerGetAllBooks(res) {
@@ -36,15 +37,15 @@ async function controllerPostBook(res, data) {
     return res.status(500).json(result);
   }
 
-  const { id, title, author, year } = data;
+  const { title, author, year } = data;
   let { status } = data;
   res.status(400);
 
   // Validation user input
-  if (!id || !title || !author || !year)
+  if (!title || !author || !year)
     return res.json({
       status: "fail",
-      message: "Invalid, missing value 'id', 'title', 'author', or 'year'",
+      message: "Invalid, missing value 'title', 'author', or 'year'",
     });
 
   // Status property optional, default "available"
@@ -59,22 +60,14 @@ async function controllerPostBook(res, data) {
 
   // Check data type
   if (
-    typeof id != "string" ||
     typeof title != "string" ||
     typeof author != "string" ||
     typeof year != "number"
   )
     return res.json({ status: "fail", message: "Invalid, data type value" });
 
+  const id = uuidv4();
   result = result.data;
-
-  // Check if there's duplicate book by id
-  const isBookDuplicate = result.some((book) => book.id === id);
-  if (isBookDuplicate) {
-    return res
-      .status(409)
-      .json({ status: "fail", message: "Invalid, duplicate id book" });
-  }
 
   // Added new data to existing old data
   result.push({ id, title, author, year, status });
